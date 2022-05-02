@@ -8,17 +8,21 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.internet.MimeMessage;
+import org.springframework.scheduling.annotation.Async;
+
+import javax.mail.MessagingException;
 
 @Service
 @AllArgsConstructor
-public class EmailService implements EmailSender {
+public class EmailService implements EmailSender{
 
-    private final static Logger LOGGER
-            = LoggerFactory.getLogger(EmailService.class);
+    private final static Logger LOGGER = LoggerFactory
+            .getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
 
     @Override
+    @Async
     public void send(String to, String email) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -27,12 +31,11 @@ public class EmailService implements EmailSender {
             helper.setText(email, true);
             helper.setTo(to);
             helper.setSubject("Confirm your email");
-            helper.setFrom("reinaldo_neves@hotmail.com");
-            LOGGER.info("Sending email to {}", to);
-        } catch (Exception e) {
+            helper.setFrom("hello@amigoscode.com");
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
             LOGGER.error("failed to send email", e);
-            throw new IllegalStateException(
-                    String.format("failed to send email to: %s", email));
+            throw new IllegalStateException("failed to send email");
         }
     }
 }
